@@ -63,7 +63,6 @@ class Route
         $search = $this->normalize($uri);
         $node = $this->rootes_tree;
         $params = [];
-        //loop every segment in request url, compare it, collect parameters names and values
         foreach ($search as $v) {
             if (isset($node[$v['use']])) {
                 $node = $node[$v['use']];
@@ -166,7 +165,7 @@ class Route
      */
     protected function normalize($route)
     {
-        //make sure that all urls have the same structure
+        //统一route 结构
         if (mb_substr($route, 0, 1) != '/') {
             $route = '/' . $route;
         }
@@ -176,7 +175,7 @@ class Route
         $result = explode('/', $route);
         $result[0] = '/';
         $ret = [];
-        //check for dynamic and optional parameters
+        //检查动态和可选参数
         foreach ($result as $v) {
             if (!$v) {
                 continue;
@@ -208,8 +207,6 @@ class Route
                 }
                 $node = &$node[$segment['use']];
             }
-            //node exec can exists only if a route is already added.
-            //This happens when a route is added more than once with different methods.
             if (isset($node['exec'])) {
                 $node['exec']['method'] = array_merge($node['exec']['method'], $route['method']);
             } else {
