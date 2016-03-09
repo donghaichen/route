@@ -13,4 +13,5 @@
 		"psr-4": {
 			"Clovers\\Route\\": "src/"
 		}
+	}
 }
