@@ -93,29 +93,18 @@ class Route
         }else{
             return false;
         }
+    }
 
-    }
-    /**
-     * 404错误
-     * @param $data
-     * @return string
-     */
-    public function routeNotFond($data = null)
-    {
-        header('HTTP/1.0 404 Not Found');
-        return $data;
-        exit();
-    }
     /**
      * 运行路由
-     * @return object
+     * @return string
      */
     public function run()
     {
         $method = strtolower($_SERVER['REQUEST_METHOD']);
         $uri = $this->uri();
         $match = $this->match($method, $uri);
-        if(!$match) return $this->routeNotFond();
+        if(!$match) return $this->runController('BaseController@httpNotFound');
         $action = $match['action'];
         $params = $match['params'];
         return is_string($action) ? $this->runController($action, $params) : $this->runCallable($action, $params);
