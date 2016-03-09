@@ -1,4 +1,7 @@
 <?php
+/**
+ * 用法示例,注意自动加载方式
+ */
 use Clovers\Route\Route;
 $router = new Route();
 Route::get('/', 'HomeController@index');

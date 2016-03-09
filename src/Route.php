@@ -1,4 +1,10 @@
 <?php
+/**
+ * Clover Route  PHP极速路由
+ *
+ * @author Donghaichen [<chendongahai888@gmailc.com>]
+ * @todo 命名路由,路由群组,路由中间件
+ */
 namespace Clovers\Route;
 use Exception;
 
@@ -11,10 +17,9 @@ class Route
 
     /**
      * 添加一个静态路由方法
-     *
      * @param $method
-     * @param $route
-     * @param $action
+     * @param $arguments
+     * @return array
      * @throws Exception
      */
     public static function __callStatic($method, $arguments)
@@ -40,16 +45,14 @@ class Route
                 $methods[$v] = $action;
             }
         }
-        self::$allowed_routes[] = ['route' => $route, 'method' => $methods];
+        self::$allowed_routes = ['route' => $route, 'method' => $methods];
     }
 
     /**
      * 从路由映射表中匹配路由
-     *
      * @param $method
      * @param $uri
      * @return array
-     * @throws Exception
      * @throws Exception
      */
     public function match($method, $uri)
@@ -74,7 +77,7 @@ class Route
                 return false;
             }
         }
-        //在找到有效的动作之前，请检查是否在请求中的可选参数的路由
+        //检查是否请求中的可选参数
         while (!isset($node['exec']) && isset($node['?'])) {
             $node = $node['?'];
         }
@@ -95,9 +98,9 @@ class Route
     }
     /**
      * 404错误
+     * @param $data
      * @return string
      */
-
     public function routeNotFond($data = null)
     {
         header('HTTP/1.0 404 Not Found');
@@ -106,7 +109,7 @@ class Route
     }
     /**
      * 运行路由
-     * @return string
+     * @return object
      */
     public function run()
     {
@@ -118,22 +121,26 @@ class Route
         $params = $match['params'];
         return is_string($action) ? $this->runController($action, $params) : $this->runCallable($action, $params);
     }
+
     /**
      * 运行控制器方法
-     * @return string
+     * @param $action
+     * @param $request
+     * @return object
      */
-
     private function runController($action, $request = [] )
     {
         $countroller = explode("@", $action);
         $class = self::namespace . '\\' . $countroller[0];
         call_user_func_array([new $class, $countroller[1]], $request);
     }
+
     /**
      * 运行匿名回调函数
-     * @return string
+     * @param $action
+     * @param $request
+     * @return object
      */
-
     private function runCallable($action, $request = null)
     {
         call_user_func($action, $request);
@@ -141,6 +148,7 @@ class Route
 
     /**
      * 处理URI,方便在ROUTES文件中匹配
+     * @param $uri
      * @return string
      */
     private static function uri($uri = null){
@@ -151,10 +159,8 @@ class Route
         return empty($uri) ? '/' : $uri;
     }
 
-
     /**
      * 序列化URI
-     *
      * @param $route
      * @return array
      */
@@ -176,18 +182,18 @@ class Route
                 continue;
             }
             if (strpos($v, '?}') !== false) {
-                $ret[] = ['name' => explode('?}', mb_substr($v, 1))[0], 'use' => '?'];
+                $ret = ['name' => explode('?}', mb_substr($v, 1))[0], 'use' => '?'];
             } elseif (strpos($v, '}') !== false) {
-                $ret[] = ['name' => explode('}', mb_substr($v, 1))[0], 'use' => '*'];
+                $ret = ['name' => explode('}', mb_substr($v, 1))[0], 'use' => '*'];
             } else {
-                $ret[] = ['name' => $v, 'use' => $v];
+                $ret = ['name' => $v, 'use' => $v];
             }
         }
         return $ret;
     }
+
     /**
      * 创建路由映射表
-     *
      * @param $routes
      * @return array
      */
