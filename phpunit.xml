@@ -1,0 +1,7 @@
+<phpunit>
+    <testsuites>
+        <testsuite name="clovers/route">
+            <directory>test/</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
