@@ -45,7 +45,7 @@ class Route
                 $methods[$v] = $action;
             }
         }
-        self::$allowed_routes = ['route' => $route, 'method' => $methods];
+        self::$allowed_routes[] = ['route' => $route, 'method' => $methods];
     }
 
     /**
@@ -63,6 +63,7 @@ class Route
         $search = $this->normalize($uri);
         $node = $this->rootes_tree;
         $params = [];
+        //loop every segment in request url, compare it, collect parameters names and values
         foreach ($search as $v) {
             if (isset($node[$v['use']])) {
                 $node = $node[$v['use']];
@@ -76,7 +77,6 @@ class Route
                 return false;
             }
         }
-        //检查是否请求中的可选参数
         while (!isset($node['exec']) && isset($node['?'])) {
             $node = $node['?'];
         }
@@ -93,6 +93,7 @@ class Route
         }else{
             return false;
         }
+
     }
 
     /**
@@ -154,7 +155,7 @@ class Route
      */
     protected function normalize($route)
     {
-        //统一route 结构
+        //make sure that all urls have the same structure
         if (mb_substr($route, 0, 1) != '/') {
             $route = '/' . $route;
         }
@@ -164,22 +165,20 @@ class Route
         $result = explode('/', $route);
         $result[0] = '/';
         $ret = [];
-        //检查动态和可选参数
         foreach ($result as $v) {
             if (!$v) {
                 continue;
             }
             if (strpos($v, '?}') !== false) {
-                $ret = ['name' => explode('?}', mb_substr($v, 1))[0], 'use' => '?'];
+                $ret[] = ['name' => explode('?}', mb_substr($v, 1))[0], 'use' => '?'];
             } elseif (strpos($v, '}') !== false) {
-                $ret = ['name' => explode('}', mb_substr($v, 1))[0], 'use' => '*'];
+                $ret[] = ['name' => explode('}', mb_substr($v, 1))[0], 'use' => '*'];
             } else {
-                $ret = ['name' => $v, 'use' => $v];
+                $ret[] = ['name' => $v, 'use' => $v];
             }
         }
         return $ret;
     }
-
     /**
      * 创建路由映射表
      * @param $routes
