@@ -43,13 +43,15 @@ class Route
         }
         if (array_search('any', $method) !== false) {
             $methods = [
-                'get' => $action,
-                'post' => $action,
-                'put' => $action,
-                'patch' => $action,
-                'delete' => $action,
-                'head' => $action,
-                'options' => $action
+                'get'       => $action,
+                'post'      => $action,
+                'put'       => $action,
+                'patch'     => $action,
+                'delete'    => $action,
+                'head'      => $action,
+                'options'   => $action,
+                'trace'     => $action,
+                'connect'   => $action,
             ];
         } else {
             foreach ($method as $v) {
