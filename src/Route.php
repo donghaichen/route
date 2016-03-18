@@ -79,7 +79,6 @@ class Route
         $search = $this->normalize($uri);
         $node = $this->rootes_tree;
         $params = [];
-        //loop every segment in request url, compare it, collect parameters names and values
         foreach ($search as $v) {
             if (isset($node[$v['use']])) {
                 $node = $node[$v['use']];
