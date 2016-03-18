@@ -12,7 +12,18 @@ class Route
 {
     const namespace = '\App\Controllers';
     private $rootes_tree = null;
-    private static $allowed_methods = ['get', 'post', 'put','patch', 'delete','head', 'options', 'any'];
+    private static $allowed_methods = [
+        'get',
+        'post',
+        'put',
+        'patch',
+        'delete',
+        'head',
+        'options',
+        'trace',
+        'connect',
+        'any'
+    ];
     public static $allowed_routes = [];
 
     /**
@@ -45,7 +56,10 @@ class Route
                 $methods[$v] = $action;
             }
         }
-        self::$allowed_routes[] = ['route' => $route, 'method' => $methods];
+        self::$allowed_routes[] = [
+            'route' => $route,
+            'method' => $methods
+        ];
     }
 
     /**
