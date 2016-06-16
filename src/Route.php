@@ -37,7 +37,7 @@ class Route
     {
         if (!in_array($method, self::$allowed_methods))
         {
-            throw new Exception('Method:' . $method . ' is not valid');
+            throw new \BadMethodCallException('Method:' . $method . ' is not valid');
         }else
         {
             $method = (array)$method;
@@ -102,7 +102,7 @@ class Route
         }
         if (isset($node['exec'])) {
             if (!isset($node['exec']['method'][$method]) && !isset($node['exec']['method']['any'])) {
-                throw new Exception('Method: ' . $method . ' is not allowed for this route');
+                throw new \BadMethodCallException('Method: ' . $method . ' is not allowed for this route');
             }
             return [
                 'route' => $node['exec']['route'],
