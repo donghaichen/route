@@ -35,13 +35,17 @@ class Route
      */
     public static function __callStatic($method, $arguments)
     {
-        $method = (array)$method;
-        $action = $arguments[1];
-        $route  = $arguments[0];
-        if (array_diff($method, self::$allowed_methods)) {
+        if (!in_array($method, self::$allowed_methods))
+        {
             throw new Exception('Method:' . $method . ' is not valid');
+        }else
+        {
+            $method = (array)$method;
+            $action = $arguments[1];
+            $route  = $arguments[0];
         }
-        if (array_search('any', $method) !== false) {
+        if (array_search('any', $method) !== false)
+        {
             $methods = [
                 'get'       => $action,
                 'post'      => $action,
@@ -79,6 +83,7 @@ class Route
         $search = $this->normalize($uri);
         $node = $this->rootes_tree;
         $params = [];
+        //loop every segment in request url, compare it, collect parameters names and values
         foreach ($search as $v) {
             if (isset($node[$v['use']])) {
                 $node = $node[$v['use']];
