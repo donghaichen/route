@@ -124,7 +124,7 @@ class Route
     {
         $method = strtolower($_SERVER['REQUEST_METHOD']);
         $uri = $this->uri();
-        $match = $this->match($method, $uri);
+        $match = $this->match($method, $uri); //http://localhost:8888/user/0/test/5 类似这样值为0则匹配失败 待优化
         if(!$match) return $this->runController('BaseController@httpNotFound');
         $action = $match['action'];
         $params = $match['params'];
@@ -141,7 +141,7 @@ class Route
     {
         $countroller = explode("@", $action);
         $class = self::namespace . '\\' . $countroller[0];
-        call_user_func_array([new $class, $countroller[1]], $request);
+        call_user_func_array([new $class, $countroller[1]], ['request' => $request]);
     }
 
     /**
