@@ -101,9 +101,6 @@ class Route
             $node = $node['?'];
         }
         if (isset($node['exec'])) {
-            if (!isset($node['exec']['method'][$method]) && !isset($node['exec']['method']['any'])) {
-                throw new \BadMethodCallException('Method: ' . strtoupper($method) . ' is not allowed for this route');
-            }
             return [
                 'route' => $node['exec']['route'],
                 'method' => $method,
