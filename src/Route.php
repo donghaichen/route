@@ -159,10 +159,10 @@ class Route
      */
     private static function uri($uri = null){
         $uri = is_null($uri) ? urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) : $uri;
-        $uri = str_replace("//", '/', $uri);
+        $uri = str_replace("//", DS, $uri);
         $uri = str_replace($_SERVER['SCRIPT_NAME'], '', $uri);
-        $uri = $uri !== '/' ? trim($uri, '/') : $uri;
-        return empty($uri) ? '/' : $uri;
+        $uri = $uri !== DS ? trim($uri, DS) : $uri;
+        return empty($uri) ? DS : $uri;
     }
 
     /**
@@ -173,14 +173,14 @@ class Route
     protected function normalize($route)
     {
         //make sure that all urls have the same structure
-        if (mb_substr($route, 0, 1) != '/') {
-            $route = '/' . $route;
+        if (mb_substr($route, 0, 1) != DS) {
+            $route = DS . $route;
         }
-        if (mb_substr($route, -1, 1) == '/') {
+        if (mb_substr($route, -1, 1) == DS) {
             $route = substr($route, 0, -1);
         }
-        $result = explode('/', $route);
-        $result[0] = '/';
+        $result = explode(DS, $route);
+        $result[0] = DS;
         $ret = [];
         foreach ($result as $v) {
             if (!$v) {
