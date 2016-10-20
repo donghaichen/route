@@ -10,7 +10,7 @@ use Exception;
 
 class Route
 {
-    const namespace = '\App\Controllers';
+    private static $namespace = '\App\Controllers';
     private $rootes_tree = null;
     private static $allowed_methods = [
         'get',
@@ -24,6 +24,18 @@ class Route
         'connect',
         'any'
     ];
+
+    // REST路由操作方法定义
+    private static $rest = [
+        'index'  => ['GET', '', 'index'],
+        'create' => ['GET', '/create', 'create'],
+        'edit'   => ['GET', '/:id/edit', 'edit'],
+        'read'   => ['GET', '/:id', 'read'],
+        'save'   => ['POST', '', 'save'],
+        'update' => ['PUT', '/:id', 'update'],
+        'delete' => ['DELETE', '/:id', 'delete'],
+    ];
+
     public static $allowed_routes = [];
 
     /**
@@ -131,14 +143,21 @@ class Route
     /**
      * 运行控制器方法
      * @param $action
-     * @param $request
+     * @param $request (注入请求参数)
      * @return object
      */
     private function runController($action, $request = [] )
     {
         $countroller = explode("@", $action);
-        $class = self::namespace . '\\' . $countroller[0];
-        call_user_func_array([new $class, $countroller[1]], ['request' => $request]);
+        $class = self::$namespace . '\\' . $countroller[0];
+        if(!$request){
+            call_user_func_array([new $class, $countroller[1]], ['request' => $request]);
+        }else{
+            $class = new \ReflectionClass($class); // 建立反射类
+            $instance  = $class->newInstanceArgs(['request' => $request]); // 实例化类
+            $method = $class->getmethod($countroller[1]); // 获取类中的方法
+            $method->invokeArgs($instance, ['request' => $request]);//调用方法，通过数组传参数
+        }
     }
 
     /**
@@ -220,5 +239,52 @@ class Route
             $node['name'] = $segment['name'];
         }
         return $tree;
+    }
+
+
+    /**
+     * 注册资源路由
+     * @access public
+     * @param string    $rule 路由规则
+     * @param string    $route 路由地址
+     * @param array     $option 路由参数
+     * @param array     $pattern 变量规则
+     * @return void
+     */
+    public static function resource($rule, $route = '', $option = [], $pattern = [])
+    {
+        if (is_array($rule)) {
+            foreach ($rule as $key => $val) {
+                if (is_array($val)) {
+                    list($val, $option, $pattern) = array_pad($val, 3, []);
+                }
+                self::resource($key, $val, $option, $pattern);
+            }
+        } else {
+            if (strpos($rule, '.')) {
+                // 注册嵌套资源路由
+                $array = explode('.', $rule);
+                $last  = array_pop($array);
+                $item  = [];
+                foreach ($array as $val) {
+                    $item[] = $val . '/:' . (isset($option['var'][$val]) ? $option['var'][$val] : $val . '_id');
+                }
+                $rule = implode('/', $item) . '/' . $last;
+            }
+            // 注册资源路由
+            foreach (self::$rest as $key => $val) {
+                if ((isset($option['only']) && !in_array($key, $option['only']))
+                    || (isset($option['except']) && in_array($key, $option['except']))) {
+                    continue;
+                }
+                if (isset($last) && strpos($val[1], ':id') && isset($option['var'][$last])) {
+                    $val[1] = str_replace(':id', ':' . $option['var'][$last], $val[1]);
+                } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
+                    $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
+                }
+                $item = ltrim($rule . $val[1], '/');
+                self::run($item . '$', $route . '/' . $val[2], $val[0], $option, $pattern);
+            }
+        }
     }
 }
